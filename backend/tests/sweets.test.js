@@ -120,7 +120,7 @@ describe('Admin Operations (Update & Delete)', () => {
 
       expect(res.statusCode).toEqual(200);
       expect(res.body.name).toEqual('Updated Sweet Name');
-      expect(res.body.price).toEqual("99.99"); // Decimal returns as string usually, or number depending on prisma setup
+      expect(parseFloat(res.body.price)).toBeCloseTo(99.99);
     }, 30000);
 
     it('should delete a sweet', async () => {

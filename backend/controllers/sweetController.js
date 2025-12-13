@@ -65,3 +65,46 @@ exports.searchSweets = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Admin Only: Update a sweet
+exports.updateSweet = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, category, price, quantity } = req.body;
+
+    const updatedSweet = await prisma.sweet.update({
+      where: { id: id },
+      data: {
+        name,
+        category,
+        // Only update if provided; ensure correct types
+        price: price ? parseFloat(price) : undefined,
+        quantity: quantity ? parseInt(quantity) : undefined
+      }
+    });
+
+    res.json(updatedSweet);
+  } catch (error) {
+    // P2025 is Prisma's error code for "Record not found"
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Sweet not found' });
+    }
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Admin Only: Delete a sweet
+exports.deleteSweet = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.sweet.delete({
+      where: { id: id }
+    });
+    res.json({ message: 'Sweet deleted successfully' });
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Sweet not found' });
+    }
+    res.status(500).json({ error: error.message });
+  }
+};

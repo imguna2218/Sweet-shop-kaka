@@ -5,8 +5,11 @@ const { authenticateToken, requireAdmin } = require('../middleware/authMiddlewar
 
 
 router.get('/', authenticateToken, sweetController.getAllSweets);
-
-// POST /api/sweets -> Only Admins can add
 router.post('/', authenticateToken, requireAdmin, sweetController.createSweet);
+
 router.get('/search', authenticateToken, sweetController.searchSweets);
+
+router.put('/:id', authenticateToken, requireAdmin, sweetController.updateSweet);
+router.delete('/:id', authenticateToken, requireAdmin, sweetController.deleteSweet);
+
 module.exports = router;
