@@ -96,3 +96,46 @@ describe('Search Functionality', () => {
     }, 30000);
 
 });
+
+describe('Admin Operations (Update & Delete)', () => {
+    let sweetId;
+
+    // Create a dummy sweet before each test so we have something to update/delete
+    beforeEach(async () => {
+      const res = await request(app)
+        .post('/api/sweets')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ name: 'Temp Sweet', category: 'Temp', price: 10, quantity: 10 });
+      sweetId = res.body.id;
+    }, 30000);
+
+    it('should update a sweet details', async () => {
+      const res = await request(app)
+        .put(`/api/sweets/${sweetId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          name: 'Updated Sweet Name',
+          price: 99.99
+        });
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.name).toEqual('Updated Sweet Name');
+      expect(res.body.price).toEqual("99.99"); // Decimal returns as string usually, or number depending on prisma setup
+    }, 30000);
+
+    it('should delete a sweet', async () => {
+      // 1. Delete it
+      const deleteRes = await request(app)
+        .delete(`/api/sweets/${sweetId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(deleteRes.statusCode).toEqual(200);
+
+      // 2. Verify it's gone (Try to find it)
+      // Note: We haven't implemented GET /:id, so we check if it exists in the list or via database check
+      // For this test, we can trust the 200 OK from delete, or check database directly
+      const check = await prisma.sweet.findUnique({ where: { id: sweetId } });
+      expect(check).toBeNull();
+    }, 30000);
+
+});
