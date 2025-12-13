@@ -1,0 +1,42 @@
+// backend/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // THIS LINE WAS MISSING. WE ARE PUTTING IT BACK.
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  isAdmin   Boolean    @default(false)
+
+  purchases Purchase[]
+}
+
+model Sweet {
+  id        String     @id @default(uuid())
+  name      String
+  category  String
+  price     Decimal
+  quantity  Int
+
+  purchases Purchase[]
+}
+
+model Purchase {
+  id         String   @id @default(uuid())
+  userId     String
+  sweetId    String
+  quantity   Int
+  totalPrice Decimal
+  createdAt  DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  sweet Sweet @relation(fields: [sweetId], references: [id])
+}
