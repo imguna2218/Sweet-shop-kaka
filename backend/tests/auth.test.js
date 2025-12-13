@@ -38,4 +38,24 @@ describe('Auth Endpoints', () => {
     expect(res.body).toHaveProperty('user');
   });
 
+  it('should login an existing user and return a token', async () => {
+      // 1. Setup: Register a user first so we have someone to log in
+      await request(app).post('/api/auth/register').send({
+        email: 'login-test@example.com',
+        password: 'password123'
+      });
+
+      // 2. Action: Attempt to Login
+      const res = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: 'login-test@example.com',
+          password: 'password123'
+        });
+
+      // 3. Assertion: Expect Success and a JWT Token
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toHaveProperty('token');
+      expect(res.body).toHaveProperty('message', 'Login successful');
+    });
 });
