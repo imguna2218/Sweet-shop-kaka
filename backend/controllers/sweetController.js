@@ -35,3 +35,33 @@ exports.createSweet = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Search sweets by name, category, or price range
+exports.searchSweets = async (req, res) => {
+  try {
+    const { name, category, minPrice, maxPrice } = req.query;
+
+    // Build the dynamic filter
+    const where = {};
+
+    if (name) {
+      // "contains" looks for the substring, "mode: insensitive" ignores case (e.g., "cake" matches "Cake")
+      where.name = { contains: name, mode: 'insensitive' };
+    }
+
+    if (category) {
+      where.category = { contains: category, mode: 'insensitive' };
+    }
+
+    if (minPrice || maxPrice) {
+      where.price = {};
+      if (minPrice) where.price.gte = parseFloat(minPrice);
+      if (maxPrice) where.price.lte = parseFloat(maxPrice);
+    }
+
+    const sweets = await prisma.sweet.findMany({ where });
+    res.json(sweets);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
