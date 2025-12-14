@@ -69,7 +69,27 @@ exports.login = async (req, res) => {
       { expiresIn: '1h' }
     );
 
-    res.status(200).json({ message: 'Login successful', token });
+    // FIX: Send user info along with the token
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        isAdmin: user.isAdmin // <--- THIS IS CRITICAL
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Logout (Stateless: Just informs client to clear token)
+exports.logout = async (req, res) => {
+  try {
+    // In a complex app, you might blacklist the token here (Redis).
+    // For this Kata, we simply confirm the action.
+    res.status(200).json({ message: 'Logout successful' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

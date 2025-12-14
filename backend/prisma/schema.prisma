@@ -25,6 +25,7 @@ model Sweet {
   category  String
   price     Decimal
   quantity  Int
+  imageUrl  String?
 
   purchases Purchase[]
 }
